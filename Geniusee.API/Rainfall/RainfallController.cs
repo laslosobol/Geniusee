@@ -6,18 +6,12 @@ namespace Geniusee.API.Rainfall;
 
 [ApiController]
 [Route("/rainfall")]
-public class RainfallController : Controller
+public class RainfallController(IRainfallService rainfallService) : Controller
 {
-    private readonly IRainfallService _rainfallService;
-
-    public RainfallController(IRainfallService rainfallService)
-    {
-        _rainfallService = rainfallService;
-    }
-
     [HttpGet("id/{stationId}/readings")]
-    public async Task<RainfallReading> GetRainfall(string stationId, int count = 10)
+    public async Task<RainfallReadingResponse?> GetRainfall(string stationId, int count = 10)
     {
-        return new RainfallReading();
+        var result = await rainfallService.GetRainfall(stationId, count);
+        return result;
     }
 }

@@ -1,13 +1,13 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel;
+using System.Text.Json;
 using Geniusee.Library.RainfallReading;
+using Geniusee.Library.Utils;
 
 namespace Geniusee.Library.Services;
 //https://environment.data.gov.uk/flood-monitoring/id/stations/52203/readings?_sorted&_limit=100
 
 public class RainfallService(HttpClient httpClient) : IRainfallService
 {
-    private readonly HttpClient _httpClient = httpClient;
-
     public async Task<RainfallReadingResponse?> GetRainfall(string id, int count)
     {
         if (string.IsNullOrEmpty(id))
@@ -19,11 +19,15 @@ public class RainfallService(HttpClient httpClient) : IRainfallService
 
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync(url);
+            HttpResponseMessage response = await httpClient.GetAsync(url);
             response.EnsureSuccessStatusCode();
 
             var body = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<RainfallReadingResponse>(body);
+            var result = JsonSerializer.Deserialize<RainfallReadingResponse>(body, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                Converters = { new DateTimeJsonConverter() }
+            });
             return result;
         }
         catch (HttpRequestException e)
