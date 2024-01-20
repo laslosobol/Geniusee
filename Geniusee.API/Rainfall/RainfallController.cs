@@ -15,7 +15,7 @@ public class RainfallController(IRainfallService rainfallService) : Controller
         try
         {
             var result = await rainfallService.GetRainfall(stationId, count);
-            if (result == null)
+            if (result == null || result.RainfallReadings.Count == 0)
             {
                 return NotFound(new ErrorReading()
                 {
